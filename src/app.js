@@ -46,7 +46,7 @@ server.post("/participants", async (req, res) => {
     try {
         const participantsConnected = await db.collection("participants").findOne({ name: name })
         if (participantsConnected) {
-            res.sendStatus(409)
+            res.sendStatus(500)
             return
         }
 
@@ -101,7 +101,7 @@ server.post("/messages", async (req, res) => {
 
     } catch (err) {
         console.log(err)
-        res.sendStatus(500)
+        res.sendStatus(422)
     }
 })
 
@@ -132,7 +132,9 @@ server.post("/status", async (req, res) => {
 
     try {
         const inList = await db.collection("messages").findOne({ name: user, })
-        if (!inList) return res.send(404)
+        if (!inList){
+            return res.send(404)
+        }
 
         await db.collection("messages").updateOne(
             { name: user },
