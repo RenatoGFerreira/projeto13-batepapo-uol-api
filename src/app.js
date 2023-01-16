@@ -21,7 +21,7 @@ try {
 }
 
 
-const db = mongoClient.db()
+const db = mongoClient.db();
 
 
 const participantsValidating = joi.object({
@@ -38,10 +38,9 @@ const messageValidating = joi.object({
 
 server.post("/participants", async (req, res) => {
     const { name } = req.body
-    const validation = participantsValidating.validate({ name })
-    if (validation.error) {
-        res.status(422).send(error)
-        return
+    const { error } = participantsValidating.validate({ name })
+    if (error) {
+        return res.status(422).send(error)
     }
 
     try {
@@ -148,12 +147,12 @@ server.post("/status", async (req, res) => {
 
 setInterval(async () => {
     const timeKick = Number(Date.now()) - 10000
-    try{
-        const inactivies = await db.collection("participants").find({lastStatus: {$lte: timeKick}}).toArray()
+    try {
+        const inactivies = await db.collection("participants").find({ lastStatus: { $lte: timeKick } }).toArray()
 
-        if(inactivies.length > 0 ){
+        if (inactivies.length > 0) {
             const inactiviesMessages = inactivies.map(p => {
-                return{
+                return {
                     from: p.name,
                     to: "Todos",
                     text: "sai da sala...",
@@ -162,9 +161,9 @@ setInterval(async () => {
                 }
             })
             await db.collection("messages").insertMany(inactiviesMessages)
-            await db.collection("participants").deleteMany({lastStatus: {$lte: timeKick}})
+            await db.collection("participants").deleteMany({ lastStatus: { $lte: timeKick } })
         }
-    } catch(err){
+    } catch (err) {
         console.log(err)
         res.sendStatus(500)
     }
