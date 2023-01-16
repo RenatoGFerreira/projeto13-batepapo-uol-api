@@ -44,8 +44,7 @@ server.post("/participants", async (req, res) => {
         return
     }
 
-    try {//    particiantscollection === db.collection("participants")
-        //    messagescollection === db.collection("messages")
+    try {
         const participantsConnected = await db.collection("participants").findOne({ name: name })
         if (participantsConnected) {
             res.sendStatus(409)
