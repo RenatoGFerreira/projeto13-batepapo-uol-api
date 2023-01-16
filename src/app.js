@@ -90,8 +90,8 @@ server.post("/messages", async (req, res) => {
             time: dayjs().format("HH:MM:SS")
         }
 
-        const validation = messageValidating.validate(objMessage)
-        if (validation.error) {
+        const { error } = messageValidating.validate(objMessage)
+        if (error) {
             res.status(422).send(error)
             return
         }
@@ -132,7 +132,7 @@ server.post("/status", async (req, res) => {
 
     try {
         const inList = await db.collection("messages").findOne({ name: user, })
-        if (!inList){
+        if (!inList) {
             return res.send(404)
         }
 
@@ -143,7 +143,7 @@ server.post("/status", async (req, res) => {
         res.sendStatus(200)
     } catch (err) {
         console.log(err)
-        res.sendStatus(500)
+        res.sendStatus(404)
     }
 })
 
