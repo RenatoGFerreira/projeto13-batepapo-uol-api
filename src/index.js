@@ -1,5 +1,10 @@
 import express from "express"
 import cors from "cors"
+import { MongoClient } from "mongodb"
+import joi from "joi"
+import dotenv from "dotenv"
+dotenv.config()
+
 
 const PORT = 5000
 const app = express()
@@ -8,7 +13,19 @@ app.use(express.json())
 
 
 
-app.post("/participants", (req, res) =>{
+const mongoClient = new MongoClient(process.env.DATABASE_URL)
+try{
+    await mongoClient.connect()
+    console.log("MongoDB is running")
+
+}catch(err){
+    console.log(err.message)
+}
+
+const d = mongoClient.db("batePapoUol")
+
+
+app.post("/participants", async (req, res) =>{
     res.sendStatus(201)
 })
 
