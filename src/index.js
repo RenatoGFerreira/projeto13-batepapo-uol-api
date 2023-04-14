@@ -2,6 +2,7 @@ import express from "express"
 import cors from "cors"
 import { MongoClient } from "mongodb"
 import joi from "joi"
+import dayjs from "dayjs"
 import dotenv from "dotenv"
 dotenv.config()
 
@@ -13,6 +14,12 @@ app.use(express.json())
 
 
 
+const participantsSchema = joi.object(
+    {
+        name: joi.string().required().min(3)
+    }
+)
+
 const mongoClient = new MongoClient(process.env.DATABASE_URL)
 try{
     await mongoClient.connect()
@@ -22,15 +29,54 @@ try{
     console.log(err.message)
 }
 
-const d = mongoClient.db("batePapoUol")
-
+const db = mongoClient.db("batePapoUol")
 
 app.post("/participants", async (req, res) =>{
-    res.sendStatus(201)
+    const {name} = req.body
+
+    const {error} = participantsSchema.validate({name}, {abortEarly: false})
+
+    if(error){
+        const erros = error.details.map(detail => detail.message)
+        return res.status(422).send(erros)
+    }
+
+    try{
+        const participantExists = await db.collection("participants").findOne({name})
+        if(participantExists){
+            return res.sendStatus(409)
+        }
+
+        await db.collection("participants").insertOne({
+            name: name, 
+            lastStatus: Date.now()
+        })
+        await db.collection("messages").insertOne({
+            from: name,
+            to: "Todos",
+            text: "entra na sala...",
+            type: "status",
+            time: dayjs().format("HH:mm:ss")
+        })
+        res.sendStatus(201)
+
+    }catch(err){
+        console.log(err)
+        res.sendStatus(500)
+    }
 })
 
-app.get("/participants", (req, res) =>{
-    res.send("ok")
+
+app.get("/participants", async (req, res) =>{
+
+    try{
+        const participants = await db.collection("participants").find().toArray()
+        return res.send(participants)
+
+    }catch(err){
+        console.log(err)
+        return sendStatus(500)
+    }
 })
 
 app.post("/messages", (req, res) =>{
