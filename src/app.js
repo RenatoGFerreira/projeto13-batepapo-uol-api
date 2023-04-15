@@ -72,8 +72,8 @@ app.get("/participants", async (req, res) => {
     const participants = await db.collection("participants").find().toArray();
     return res.send(participants);
   } catch (err) {
-    console.log(err.message);
-    res.status(500).send(err.message)
+    console.log(err);
+    res.sendStatus(500)
   }
 });
 
@@ -94,15 +94,15 @@ app.post("/messages", async (req, res) => {
       const erros = error.details.map((detail) => detail.message);
       return res.status(422).send(erros);
     }
-    const userValid = db.collection("participants").findOne(user).toArray()
+    const userValid = db.collection("participants").findOne({user}).toArray()
     if(!userValid){
       return res.status(422).send("No user found.")
     }
     await db.collection("messages").insertOne(sendMesage);
     res.sendStatus(201);
   } catch (err) {
-    console.log(err.message);
-    res.status(500).send(err.message)
+    console.log(err);
+    res.sendStatus(500);
   }
 });
 
@@ -127,8 +127,8 @@ app.get("/messages", async (req, res) => {
       }
     res.send(messages);
   } catch (err) {
-    console.log(err.message);
-    res.status(500).send(err.message)
+    console.log(err);
+    res.sendStatus(500);
   }
 });
 
@@ -145,9 +145,9 @@ app.post("/status",  async (req, res) => {
         res.sendStatus(200)
 
     }catch (err) {
-    console.log(err.message);
-    res.status(500).send(err.message)
-  }
+      console.log(err);
+      res.sendStatus(500);
+    }
 });
 
 
