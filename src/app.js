@@ -62,8 +62,8 @@ app.post("/participants", async (req, res) => {
     });
     res.sendStatus(201);
   } catch (err) {
-    console.log(err.message);
-    res.status(500).send(err.message)
+    console.log(err);
+    res.sendStatus(500);
   }
 });
 
@@ -73,7 +73,7 @@ app.get("/participants", async (req, res) => {
     return res.send(participants);
   } catch (err) {
     console.log(err);
-    res.sendStatus(500)
+    return sendStatus(500);
   }
 });
 
@@ -94,10 +94,7 @@ app.post("/messages", async (req, res) => {
       const erros = error.details.map((detail) => detail.message);
       return res.status(422).send(erros);
     }
-    const userValid = db.collection("participants").findOne({user}).toArray()
-    if(!userValid){
-      return res.status(422).send("No user found.")
-    }
+
     await db.collection("messages").insertOne(sendMesage);
     res.sendStatus(201);
   } catch (err) {
@@ -122,7 +119,7 @@ app.get("/messages", async (req, res) => {
       .limit(limit)
       .toArray();
 
-      if(messages.length <= 0 ){
+      if(messages.length === 0 ){
         return res.status(404).send("Não foi encontrado nenhuma mensagem")
       }
     res.send(messages);
@@ -144,9 +141,9 @@ app.post("/status",  async (req, res) => {
         await db.collection("participants").updateOne({name: user}, {$set: {lastStatus: Date.now()}})
         res.sendStatus(200)
 
-    }catch (err) {
-      console.log(err);
-      res.sendStatus(500);
+    }catch(err){
+        console.log(err)
+        res.sendStatus(500)
     }
 });
 
@@ -177,9 +174,9 @@ setInterval( async ()=>{
      await db.collection("participants").deleteMany({lastStatus: {$lte: tenSeconds}})
     }
 
-  }catch (err) {
-    console.log(err.message);
-    res.status(500).send(err.message)
+  }catch(err){
+    console.log(err)
+    res.sendStatus(500)
   }
   
   console.log("Kick inactive users.")
