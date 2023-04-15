@@ -31,7 +31,7 @@ try {
   console.log(err.message);
 }
 
-const db = mongoClient.db("batePapoUol");
+const db = mongoClient.db();
 
 app.post("/participants", async (req, res) => {
   const { name } = req.body;
@@ -47,23 +47,18 @@ app.post("/participants", async (req, res) => {
   }
 
   try {
-    const participantExists = await db
-      .collection("participants")
-      .findOne({ name });
+    const participantExists = await db.collection("participants").findOne({ name });
     if (participantExists) {
       return res.sendStatus(409);
     }
 
-    await db.collection("participants").insertOne({
-      name: name,
-      lastStatus: Date.now(),
-    });
+    await db.collection("participants").insertOne({name: name, lastStatus: Date.now()});
     await db.collection("messages").insertOne({
       from: name,
       to: "Todos",
       text: "entra na sala...",
       type: "status",
-      time: dayjs().format("HH:mm:ss"),
+      time: dayjs().format("HH:mm:ss")
     });
     res.sendStatus(201);
   } catch (err) {
