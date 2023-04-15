@@ -62,8 +62,8 @@ app.post("/participants", async (req, res) => {
     });
     res.sendStatus(201);
   } catch (err) {
-    console.log(err);
-    res.sendStatus(500);
+    console.log(err.message);
+    res.status(500).send(err.message)
   }
 });
 
@@ -72,8 +72,8 @@ app.get("/participants", async (req, res) => {
     const participants = await db.collection("participants").find().toArray();
     return res.send(participants);
   } catch (err) {
-    console.log(err);
-    return sendStatus(500);
+    console.log(err.message);
+    res.status(500).send(err.message)
   }
 });
 
@@ -94,14 +94,13 @@ app.post("/messages", async (req, res) => {
       const erros = error.details.map((detail) => detail.message);
       return res.status(422).send(erros);
     }
-
-    await db.collection("messages").insertOne(sendMesage);
-    res.sendStatus(201);
-  } catch (err) {
-    console.log(err);
-    res.sendStatus(500);
+    const userValid = db.collection("participants").findOne(user).toArray()
+    if(!userValid){
+      return res.status(422).send("No user found.");
+    }
+    res.status(500).send(err.message)
   }
-});
+);
 
 app.get("/messages", async (req, res) => {
   const limit = Number(req.query.limit);
@@ -119,13 +118,13 @@ app.get("/messages", async (req, res) => {
       .limit(limit)
       .toArray();
 
-      if(messages.length === 0 ){
+      if(messages.length >= 0 ){
         return res.status(404).send("Não foi encontrado nenhuma mensagem")
       }
     res.send(messages);
   } catch (err) {
-    console.log(err);
-    res.sendStatus(500);
+    console.log(err.message);
+    res.status(500).send(err.message)
   }
 });
 
@@ -141,10 +140,10 @@ app.post("/status",  async (req, res) => {
         await db.collection("participants").updateOne({name: user}, {$set: {lastStatus: Date.now()}})
         res.sendStatus(200)
 
-    }catch(err){
-        console.log(err)
-        res.sendStatus(500)
-    }
+    }catch (err) {
+    console.log(err.message);
+    res.status(500).send(err.message)
+  }
 });
 
 
@@ -174,9 +173,9 @@ setInterval( async ()=>{
      await db.collection("participants").deleteMany({lastStatus: {$lte: tenSeconds}})
     }
 
-  }catch(err){
-    console.log(err)
-    res.sendStatus(500)
+  }catch (err) {
+    console.log(err.message);
+    res.status(500).send(err.message)
   }
   
   console.log("Kick inactive users.")
