@@ -96,11 +96,15 @@ app.post("/messages", async (req, res) => {
     }
     const userValid = db.collection("participants").findOne(user).toArray()
     if(!userValid){
-      return res.status(422).send("No user found.");
+      return res.status(422).send("No user found.")
     }
+    await db.collection("messages").insertOne(sendMesage);
+    res.sendStatus(201);
+  } catch (err) {
+    console.log(err.message);
     res.status(500).send(err.message)
   }
-);
+});
 
 app.get("/messages", async (req, res) => {
   const limit = Number(req.query.limit);
@@ -118,7 +122,7 @@ app.get("/messages", async (req, res) => {
       .limit(limit)
       .toArray();
 
-      if(messages.length >= 0 ){
+      if(messages.length <= 0 ){
         return res.status(404).send("Não foi encontrado nenhuma mensagem")
       }
     res.send(messages);
