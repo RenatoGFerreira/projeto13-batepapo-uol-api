@@ -95,6 +95,10 @@ app.post("/messages", async (req, res) => {
       return res.status(422).send(erros);
     }
 
+    if(!sendMesage.from){
+      return res.status(422).send("Não foi possível criar a mensagem.")
+    }
+
     await db.collection("messages").insertOne(sendMesage);
     console.log(sendMesage)
     res.sendStatus(201);
