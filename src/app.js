@@ -16,7 +16,7 @@ const participantsSchema = joi.object({
 });
 
 const messageSchema = joi.object({
-  from: joi.string().required(),
+  from: joi.string().required().min(3),
   to: joi.string().required().min(3),
   text: joi.string().required().min(1),
   type: joi.string().required().valid("message", "private_message"),
@@ -96,6 +96,7 @@ app.post("/messages", async (req, res) => {
     }
 
     await db.collection("messages").insertOne(sendMesage);
+    console.log(sendMesage)
     res.sendStatus(201);
   } catch (err) {
     console.log(err);
@@ -108,6 +109,10 @@ app.get("/messages", async (req, res) => {
   const { user } = req.headers;
 
   try {
+    if(limit < 1){
+      console.log(limit)
+      return res.sendStatus(401)
+    }
     const messages = await db.collection("messages")
       .find({
         $or: [
