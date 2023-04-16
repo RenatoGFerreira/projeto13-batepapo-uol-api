@@ -16,7 +16,7 @@ const participantsSchema = joi.object({
 });
 
 const messageSchema = joi.object({
-  from: joi.string().required().min(3),
+  from: joi.string().required().min(3),   //empty()
   to: joi.string().required().min(3),
   text: joi.string().required().min(1),
   type: joi.string().required().valid("message", "private_message"),
@@ -87,6 +87,7 @@ app.post("/messages", async (req, res) => {
     type: type,
     time: dayjs().format("HH:mm:ss"),
   };
+  console.log(sendMesage)
 
   try {
     const { error } = messageSchema.validate(sendMesage, { abortEarly: false });
@@ -95,8 +96,8 @@ app.post("/messages", async (req, res) => {
       return res.status(422).send(erros);
     }
 
-    if(!sendMesage.from){
-      return res.status(422).send("Não foi possível criar a mensagem.")
+    if(!user){
+      res.status(422).send("Erro ao enviar request")
     }
 
     await db.collection("messages").insertOne(sendMesage);
