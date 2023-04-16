@@ -97,7 +97,7 @@ app.post("/messages", async (req, res) => {
     }
 
     if(!user){
-      res.status(422).send("Erro ao enviar request")
+      return res.status(422).send("Erro ao enviar request")
     }
 
     await db.collection("messages").insertOne(sendMesage);
