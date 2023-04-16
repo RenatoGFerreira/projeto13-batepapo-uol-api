@@ -89,10 +89,6 @@ app.post("/messages", async (req, res) => {
   };
 
   try {
-    const haveUser = db.collection("participants").findOne({user})
-    if(!haveUser){
-      return res.status(422).send("Não foi possível enviar mensagem.")
-    }
     const { error } = messageSchema.validate(sendMesage, { abortEarly: false });
     if (error) {
       const erros = error.details.map((detail) => detail.message);
@@ -106,7 +102,7 @@ app.post("/messages", async (req, res) => {
     console.log(err);
     res.sendStatus(500);
   }
-});
+})
 
 app.get("/messages", async (req, res) => {
   const limit = Number(req.query.limit)
@@ -117,7 +113,7 @@ app.get("/messages", async (req, res) => {
   try {
     if(limit < 1 || isNaN(limit)){
       console.log("Não numero")
-      return res.sendStatus(401)
+      return res.sendStatus(422)
     }
     const messages = await db.collection("messages")
       .find({
