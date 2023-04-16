@@ -100,7 +100,7 @@ app.post("/messages", async (req, res) => {
       return res.status(422).send("Erro ao enviar request")
     }
 
-    const haveUser = await db.collection("participants").findOne({user})
+    const haveUser = await db.collection("participants").findOne({name: user})
     if(!haveUser){
       return res.status(422).send("Erro ao enviar request")
     }
